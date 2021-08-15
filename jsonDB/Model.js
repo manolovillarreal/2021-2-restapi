@@ -10,16 +10,21 @@ class Model {
     }
 
     async find(query) {
-        const usuarios = await loadCollection(this.collection);
+        const documents = await loadCollection(this.collection);
         if (query) {
-            usuarios = usuarios.filter(u => matchByKeys(u, query));
+            documents = documents.filter(u => matchByKeys(u, query));
         }
-        return usuarios;
+        return documents;
     }
     async findOne(query) {
-        const usuarios = await loadCollection(this.collection);
-        let usuario = usuarios.find(u => matchByKeys(u, query));
-        return usuario;
+        const documents = await loadCollection(this.collection);
+        let doc = documents.find(u => matchByKeys(u, query));
+        return doc;
+    }
+    async findById(id) {
+        const documents = await loadCollection(this.collection);
+        let doc = documents.find(u => u._id == id);
+        return doc;
     }
 
     async save(doc) {
