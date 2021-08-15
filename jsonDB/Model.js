@@ -1,4 +1,7 @@
 const fs = require("fs")
+const { uid } = require('uid');
+
+
 class Model {
 
     constructor(modelName) {
@@ -6,18 +9,23 @@ class Model {
         this.collection = modelName + 's';
     }
 
-    async find(id) {
+    async find(query) {
         const usuarios = await loadCollection(this.collection);
-        if (id) {
-            usuarios = usuarios.find(u => u.id === id);
+        if (query) {
+            usuarios = usuarios.filter(u => matchByKeys(u, query));
         }
         return usuarios;
+    }
+    async findOne(query) {
+        const usuarios = await loadCollection(this.collection);
+        let usuario = usuarios.find(u => matchByKeys(u, query));
+        return usuario;
     }
 
     async save(doc) {
         console.log("Goin to save " + this.name + " in " + this.collection + " collections");
         let obj = await saveCollection(this.collection, doc);
-        return true;
+        return obj;
     }
 }
 
@@ -31,21 +39,35 @@ const loadCollection = async(collectionName) => {
 
     return collection;
 }
-const saveCollection = async(collectionName, doc) => {
-    let collection = await loadCollection(collectionName);
-    collection.push(doc);
-    let data = JSON.stringify(collection);
-    console.log(__dirname);
-    fs.writeFile(`./jsonDB/db/${collectionName}.json`, data, (err) => {
-        if (err) {
-            console.log(err.message);
-            throw new Error(`Error guardando el archivo ${collectionName}.json`);
-        } else {
-            console.log("Save OK");
-            return
-        }
+const saveCollection = (collectionName, doc) => {
+    return new Promise(async(resolve, reject) => {
+        let collection = await loadCollection(collectionName);
+        doc = { _id: uid(16), ...doc }
+        collection.push(doc);
+        let data = JSON.stringify(collection);
+        console.log(__dirname);
+        fs.writeFile(`./jsonDB/db/${collectionName}.json`, data, (err) => {
+            if (err) {
+                console.log(err.message);
+                collection.pop();
+                reject(`Error guardando el archivo ${collectionName}.json`);
+            } else {
+                console.log("Save OK");
+                resolve(doc);
+            }
+        });
     })
+
 }
 
+const matchByKeys = (obj, query) => {
+    let match = true;
+    for (const key in query) {
+        if (query[key] != obj[key])
+            match = false;
+    }
+
+    return match;
+}
 
 module.exports = Model;
