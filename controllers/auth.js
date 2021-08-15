@@ -1,36 +1,47 @@
-const Usuario = require('../models/usuario')
+const Usuario = require('../models/usuario');
+const bcryptjs = require('bcryptjs');
 
 
-const usuariosPost = async(req, res) => {
+const login = async(req, res = response) => {
 
-    const { username, password } = req.body
+    const { username, password } = req.body;
 
-    //#region Validaciones
-    if (!username) {
-        res.status(400).json({
-            msg: "Debe enviar el usuario"
+
+    //Verificar si el email existe
+    const usuarioDB = await Usuario.findOne({ username });
+    if (!usuarioDB) {
+        return res.status(400).json({
+            msg: 'Usuario o contraseña no son correctos - correo'
         })
     }
-    if (!password) {
-        res.status(400).json({
-            msg: "Debe enviar el password"
+    //Si el usuario esta activo
+    if (!usuarioDB.estado) {
+        return res.status(400).json({
+            msg: 'Usuario o contraseña no son correctos - estado'
         })
     }
-    //#endregion
+    //verificar contraseña
+    const validPassword = bcryptjs.compareSync(password, usuarioDB.password);
+    if (!validPassword) {
+        return res.status(400).json({
+            msg: 'Usuario o contraseña no son correctos - password'
+        })
+    }
+
+    const { password: pass, ...usuario } = usuarioDB;
 
 
-    await Usuario.save({
-        username,
-        password
-    })
+    //Generar JWT
+    const token = "KSJSJSJ12345&%$#";
+
 
 
     res.json({
-        msg: 'POST - api',
-        usuario: req.body
-    })
+        usuario: usuario,
+        token
+    });
 }
 
 module.exports = {
-    usuariosPost
+    login
 }
