@@ -1,4 +1,5 @@
 const Usuario = require('../models/usuario')
+const bcryptjs = require('bcryptjs');
 
 
 const usuariosPost = async(req, res) => {
@@ -18,8 +19,12 @@ const usuariosPost = async(req, res) => {
     }
     //#endregion
 
+    // Encriptar la contraseña
+    const salt = bcryptjs.genSaltSync();
+    password = bcryptjs.hashSync(password, salt);
 
     await Usuario.save({
+
         username,
         password
     })
