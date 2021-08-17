@@ -1,5 +1,6 @@
 const Usuario = require('../models/usuario')
 const bcryptjs = require('bcryptjs');
+const { request } = require('express');
 
 
 const usuariosPost = async(req, res) => {
@@ -48,6 +49,27 @@ const usuariosPost = async(req, res) => {
     })
 }
 
+const usuariosGetByUsername = async(req = request, res) => {
+
+    // const token = req.headers['x-token'];
+
+    // if (!token) {
+    //     return res.status(401).json({
+    //         msg: 'No hay token en la peticion'
+    //     });
+    // }
+
+    const { username } = req.params;
+    //preparo la data para guardar
+    //Guardamos el usuario y extraemos la contraseña 
+    let usuario = await Usuario.findOne({ username })
+
+    res.json({
+        msg: 'GET - api',
+        usuario
+    })
+}
 module.exports = {
-    usuariosPost
+    usuariosPost,
+    usuariosGetByUsername
 }
