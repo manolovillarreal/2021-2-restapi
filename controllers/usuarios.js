@@ -60,8 +60,7 @@ const usuariosGetByUsername = async(req = request, res) => {
     // }
 
     const { username } = req.params;
-    //preparo la data para guardar
-    //Guardamos el usuario y extraemos la contraseña 
+    
     let usuario = await Usuario.findOne({ username })
 
     res.json({
@@ -69,6 +68,7 @@ const usuariosGetByUsername = async(req = request, res) => {
         usuario
     })
 }
+
 module.exports = {
     usuariosPost,
     usuariosGetByUsername
