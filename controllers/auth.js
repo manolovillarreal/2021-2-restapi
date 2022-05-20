@@ -7,7 +7,7 @@ const login = async(req, res = response) => {
 
     const { username, password } = req.body;
 
-
+    console.log(username);
     //Verificar si el email existe
     const usuarioDB = await Usuario.findOne({ username });
     if (!usuarioDB) {

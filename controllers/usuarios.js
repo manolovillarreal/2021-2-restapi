@@ -37,7 +37,8 @@ const usuariosPost = async(req, res) => {
     const dataUsuario = {
         username,
         password: hash,
-        estado: true
+        estado: true,
+        friends:[]
     }
 
     //Guardamos el usuario y extraemos la contraseña 

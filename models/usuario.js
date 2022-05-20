@@ -5,7 +5,8 @@ const UsuarioSchema = Schema({
     username: String,
     estado: Boolean,
     score: Number,
-    achievements: Array
+    achievements: Array,
+    friends:Array
 })
 
 

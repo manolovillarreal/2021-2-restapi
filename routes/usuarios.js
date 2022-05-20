@@ -8,4 +8,6 @@ router.post('/', usuariosPost)
 
 router.get('/:username', [validarJWT], usuariosGetByUsername)
 
+
+
 module.exports = router;

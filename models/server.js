@@ -1,10 +1,13 @@
 const express = require('express');
+const http = require('http');
+const socketio = require('socket.io');
 const cors = require('cors');
 
+const {Sockets} = require('./sockets');
 const { dbConnection } = require('../database/config');
 
-class Server {
 
+class Server {
 
     constructor() {
         this.app = express();
@@ -12,16 +15,15 @@ class Server {
 
         this.paths = {
             auth: '/api/auth',
-            users: '/api/usuarios'
+            users: '/api/usuarios',
+            games: '/api/juegos'
         }
+        //Http server
+        this.server = http.createServer(this.app);
 
-        //Conectarme a base de datos
-        this.conectarDB();
-        //Middlewares
-        this.middlewares();
-
-        //Rutas de la aplicacion
-        this.routes();
+        //Configurar sockets
+        this.io = socketio(this.server);
+        
     }
 
     async conectarDB() {
@@ -31,22 +33,33 @@ class Server {
 
         // CORS
         this.app.use(cors());
-
         //lectura y el parse del body
         this.app.use(express.json());
-
-
         //Directorio publico
-        this.app.use(express.static('public'));
-
+        this.app.use(express.static('public'));        
     }
 
     routes() {
         this.app.use(this.paths.auth, require('../routes/auth'));
         this.app.use(this.paths.users, require('../routes/usuarios'));
     }
-    listen() {
-        this.app.listen(this.port, () => {
+
+    startSockets(){
+        new Sockets(this.io);
+    }
+
+    execute(){
+            //Conectarme a base de datos
+        this.conectarDB();
+        //Middlewares
+        this.middlewares();
+
+        //Rutas de la aplicacion
+        this.routes();
+
+        this.startSockets();
+
+        this.server.listen(this.port, () => {
             console.log('Servidor corriendo en puerto ' + this.port);
         })
     }
